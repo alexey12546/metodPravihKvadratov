@@ -5,8 +5,12 @@
 using namespace std;
 
 // Подынтегральная функция
+double kubat_func(double x,double y) {
+    return x*x + 2.0*y; 
+}
+
 double func(double x) {
-    return (1 + x*x) / (1 + x*x*x);
+    return (1+x*x)/(1+x*x*x); 
 }
 
 // Определенный интеграл методом трапеций
@@ -34,14 +38,43 @@ double integrate_simpson(double (*f)(double), double a, double b, int n) {
     return result;
 }
 
+double kubat_simpson(double (*f)(double, double), double a, double b, double c, double d, int n, int m) {
+    double hx = (b - a) / (2.0 * n);
+    double hy = (d - c) / (2.0 * m);
+    double result = 0.0;
+
+    for (int i = 0; i <= n; i++) {
+        for (int j = 0; j <= m; j++) {
+            double x = a + i * hx;
+            double y = c + j * hy;
+            double z = f(x, y);
+
+            if (i == 0 || i == n) {
+                z /= 2.0;
+            }
+            if (j == 0 || j == m) {
+                z /= 2.0;
+            }
+
+            result += z;
+        }
+    }
+
+    result *= hx * hy;
+    return result;
+}
+
+
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     double a = 3.0, b = 4.254;
+    double a1 = 0.0, b1 = 2.0,c = 0.0,d = 1.0;
     double epsilon = 1e-5;
-    int n = 2;
+    int n = 10,m = 10;
     while (true) {
         double result_trapezoidal = integrate_trapezoidal(func, a, b, n);
         double result_simpson = integrate_simpson(func, a, b, n);
+        double result_kubet_simpson = kubat_simpson(kubat_func, a1, b1,c ,d , n, m);
         if ((result_trapezoidal - integrate_trapezoidal(func, a, b, 2 * n)) / 3 < epsilon) {
             break;
         }
@@ -50,11 +83,17 @@ int main() {
             break;
         }
 
-        n *= 2;
-    }
+        if ((result_kubet_simpson - kubat_simpson(kubat_func, a1, b1,c ,d ,2*n, 2*m)) < epsilon) {
+            break;
+        }
 
+        n *= 2;
+        m *= 2;
+    }
+    cout<<"Результаты первых двух методов для моего варианта(4),а кубаторный метод - данные брал из 31 варианта"<<endl;
     cout << "Результат методом трапеций: " << integrate_trapezoidal(func, a, b, n) << endl;
     cout << "Результат методом Симпсона: " << integrate_simpson(func, a, b, n) << endl;
+    cout << "Результат методом кубаторного Симпсона: " << kubat_simpson(kubat_func, a1, b1,c ,d ,n, m) << endl;
 
     return 0;
 }
