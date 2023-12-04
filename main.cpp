@@ -39,8 +39,13 @@ double integrate_simpson(double (*f)(double), double a, double b, int n) {
 }
 
 double kubat_simpson(double (*f)(double, double), double a, double b, double c, double d, int n, int m) {
-    double hx = (b - a) / (2.0 * n);
-    double hy = (d - c) / (2.0 * m);
+    if (n % 2 != 0 || m % 2 != 0) {
+        cerr << "Ошибка: Число интервалов должно быть четным." << endl;
+        return 0.0;
+    }
+
+    double hx = (b - a) / n;
+    double hy = (d - c) / m;
     double result = 0.0;
 
     for (int i = 0; i <= n; i++) {
@@ -50,19 +55,29 @@ double kubat_simpson(double (*f)(double, double), double a, double b, double c, 
             double z = f(x, y);
 
             if (i == 0 || i == n) {
-                z /= 2.0;
+                z *= 1.0;
+            } else if (i % 2 == 1) {
+                z *= 4.0;
+            } else {
+                z *= 2.0;
             }
+
             if (j == 0 || j == m) {
-                z /= 2.0;
+                z *= 1.0;
+            } else if (j % 2 == 1) {
+                z *= 4.0;
+            } else {
+                z *= 2.0;
             }
 
             result += z;
         }
     }
 
-    result *= hx * hy;
+    result *= hx * hy / 9.0;
     return result;
 }
+
 
 
 int main() {
@@ -74,7 +89,7 @@ int main() {
     while (true) {
         double result_trapezoidal = integrate_trapezoidal(func, a, b, n);
         double result_simpson = integrate_simpson(func, a, b, n);
-        double result_kubet_simpson = kubat_simpson(kubat_func, a1, b1,c ,d , n, m);
+        double result_kubat_simpson = kubat_simpson(kubat_func, a1, b1,c ,d , n, m);
         if ((result_trapezoidal - integrate_trapezoidal(func, a, b, 2 * n)) / 3 < epsilon) {
             break;
         }
@@ -82,11 +97,7 @@ int main() {
         if ((result_simpson - integrate_simpson(func, a, b, 2 * n)) / 15 < epsilon) {
             break;
         }
-
-        if ((result_kubet_simpson - kubat_simpson(kubat_func, a1, b1,c ,d ,2*n, 2*m)) < epsilon) {
-            break;
-        }
-
+        
         n *= 2;
         m *= 2;
     }
