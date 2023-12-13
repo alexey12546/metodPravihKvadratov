@@ -78,8 +78,6 @@ double kubat_simpson(double (*f)(double, double), double a, double b, double c, 
     return result;
 }
 
-
-
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     double a = 3.0, b = 4.254;
@@ -89,15 +87,9 @@ int main() {
     while (true) {
         double result_trapezoidal = integrate_trapezoidal(func, a, b, n);
         double result_simpson = integrate_simpson(func, a, b, n);
-        double result_kubat_simpson = kubat_simpson(kubat_func, a1, b1,c ,d , n, m);
-        if ((result_trapezoidal - integrate_trapezoidal(func, a, b, 2 * n)) / 3 < epsilon) {
+        if (((result_trapezoidal - integrate_trapezoidal(func, a, b, n)) / 3 < epsilon) && ((result_simpson - integrate_simpson(func, a, b, 2 * n)) / 15 < epsilon)) {
             break;
         }
-
-        if ((result_simpson - integrate_simpson(func, a, b, 2 * n)) / 15 < epsilon) {
-            break;
-        }
-        
         n *= 2;
         m *= 2;
     }
